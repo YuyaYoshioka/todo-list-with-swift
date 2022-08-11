@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State var todos: [TodoEntity] = todosExample
+    
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        TodoLists(todos: todos)
     }
 }
 
