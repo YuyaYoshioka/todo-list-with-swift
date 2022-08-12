@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct TodoInput: View {
-    @State private var todoInput: TodoInputEntity = TodoInputEntity(title: "", description: "", limitTime: Date())
+    @State private var todoInput: TodoInputEntity = TodoInputEntity(title: "", limitTime: Date())
     var addTodo: ((TodoInputEntity) -> Void)
     var closeAddTodo: () -> Void
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 10) {
+            VStack(spacing: 50) {
                 VStack(alignment: .leading) {
                     Text("タイトル")
                         .padding(.leading)
@@ -28,15 +28,6 @@ struct TodoInput: View {
                             .stroke(.primary)
                     }
                     .padding([.leading, .trailing])
-                }
-                VStack(alignment: .leading) {
-                    Text("内容")
-                        .padding(.leading)
-                    TextEditor(text: $todoInput.description)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 4)
-                                .stroke(.primary)
-                        }                    .padding([.leading, .trailing])
                 }
                 DatePicker(
                     "期限",
@@ -62,7 +53,6 @@ struct TodoInput: View {
                         closeAddTodo()
                     }) {
                         Text("キャンセル")
-                            .foregroundColor(.red)
                     }
                 }
             }
@@ -71,9 +61,6 @@ struct TodoInput: View {
     
     private func isButtonDisabled(todo: TodoInputEntity) -> Bool {
         if todo.title.isEmpty {
-            return true
-        }
-        if todo.description.isEmpty {
             return true
         }
         
@@ -90,5 +77,5 @@ struct TodoInput_Previews: PreviewProvider {
         print(todo)
     }
     
-    private static let todoInput = TodoInputEntity(title: "タイトル1", description: "内容1", limitTime: Date())
+    private static let todoInput = TodoInputEntity(title: "タイトル1", limitTime: Date())
 }
