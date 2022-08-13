@@ -9,34 +9,65 @@ import SwiftUI
 
 struct TodoLists: View {
     @State var todos: [TodoEntity]
+    @State var filterMode: FilterTodoStatus = .all
     @State var todoID = 100
     @State var isAddMode = false
+    @State var isEditMode = false
     @State var showsDeleteConfirmation = false
-    @State var deleteTodo: TodoEntity = TodoEntity(id: 0, title: "", isCompleted: false, limitTime: Date())
+    @State var targetTodo: TodoEntity = TodoEntity(id: 0, title: "", isCompleted: false, limitTime: Date())
+    @Environment(\.editMode) private var editMode
     
     var body: some View {
         NavigationView {
             List {
-                ForEach(todos) { todo in
+                ForEach(filterTodo(todos: todos)) { todo in
                     Text(todo.title)
-                    .swipeActions(edge: .trailing) {
-                        Button(role: .destructive) {
-                            deleteTodo = todo
-                            showsDeleteConfirmation.toggle()
-                        } label: {
-                            Label("Delete", systemImage: "trash")
+                        .swipeActions(edge: .trailing) {
+                            Button(role: .destructive) {
+                                targetTodo = todo
+                                showsDeleteConfirmation.toggle()
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                            Button(action:
+                                    {
+                                targetTodo = todo
+                                isEditMode.toggle()
+                            }
+                            ){
+                                Label("Edit", systemImage: "pencil")
+                            }
+                            .tint(.blue)
                         }
-                        Button(action:
-                                {isAddMode.toggle()}
-                        ){
-                            Label("Edit", systemImage: "pencil")
-                                .foregroundColor(.blue)
+                        .swipeActions(edge: .leading) {
+                            if todo.isCompleted {
+                                Button(action:
+                                        {
+                                    unCompleteTodo(id: todo.id)
+                                }
+                                ){
+                                    Label("Edit", systemImage: "tray.full.fill")
+                                }
+                                .tint(.green)
+                            } else {
+                                Button(action:
+                                        {
+                                    completeTodo(id: todo.id)
+                                }
+                                ){
+                                    Label("Edit", systemImage: "tray.fill")
+                                }
+                                .tint(.green)
+                            }
                         }
-                    }
                 }
+                .onDelete(perform: {_ in })
             }
             .navigationTitle("Todoリスト")
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    EditButton()
+                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         isAddMode = true
@@ -44,19 +75,73 @@ struct TodoLists: View {
                         Image(systemName: "plus.circle")
                     }
                 }
+                ToolbarItemGroup(placement: .bottomBar) {
+                    Button(action: {
+                        filterMode = .all
+                    }) {
+                        VStack {
+                            Image(systemName: "checklist")
+                            Text("全て")
+                                .font(.caption2)
+                        }
+                    }
+                    .tint(filterMode == .all ? .blue : .gray)
+                    .padding()
+                    Spacer()
+                    Button(action: {
+                        filterMode = .completed
+                    }) {
+                        VStack {
+                            Image(systemName: "tray.fill")
+                            Text("完了")
+                                .font(.caption2)
+                        }
+                    }
+                    .tint(filterMode == .completed ? .blue : .gray)
+                    Spacer()
+                    Button(action: {
+                        filterMode = .notCompleted
+                    }) {
+                        VStack {
+                            Image(systemName: "tray.full.fill")
+                            Text("未完了")
+                                .font(.caption2)
+                        }
+                    }
+                    .tint(filterMode == .notCompleted ? .blue : .gray)
+                    .padding()
+                }
             }
             .sheet(isPresented: $isAddMode) {
                 TodoInput(addTodo: addTodo, closeAddTodo: closeAddTodo)
             }
-            .alert("\(deleteTodo.title)を本当に削除しますか？",
+            .sheet(isPresented: $isEditMode) {
+                TodoEdit(closeEditTodo: closeEditTodo, updateTodo: updateTodo(todo:), todoEdit: TodoEditEntity(title: targetTodo.title, isCompleted: targetTodo.isCompleted, limitTime: targetTodo.limitTime))
+            }
+            .alert("\(targetTodo.title)を本当に削除しますか？",
                    isPresented: $showsDeleteConfirmation) {
                 Button(role: .destructive, action: {
-                    deleteTodo(todoID: deleteTodo.id)
+                    deleteTodo(todoID: targetTodo.id)
                     showsDeleteConfirmation.toggle()
                 }) {
                     Text("削除する")
                 }
             }
+        }
+    }
+    
+    private func filterTodo(todos: [TodoEntity]) -> [TodoEntity] {
+        switch filterMode {
+        case .all:
+            return todos
+        case .completed:
+            let completedTodos = todos.filter { $0.isCompleted == true }
+            
+            return completedTodos
+        case .notCompleted:
+            let notCompletedTodos = todos.filter { $0.isCompleted == false }
+            
+            return notCompletedTodos
         }
     }
     
@@ -72,6 +157,34 @@ struct TodoLists: View {
     private func deleteTodo(todoID: Int) {
         let targetIndex = todos.firstIndex(where: { $0.id == todoID })
         todos.remove(at: targetIndex!)
+    }
+    
+    private func closeEditTodo() {
+        isEditMode.toggle()
+    }
+    
+    private func updateTodo(todo: TodoEditEntity) {
+        let index = todos.firstIndex(where: { $0.id == targetTodo.id })
+        
+        if let index = index {
+            todos[index] = TodoEntity(id: targetTodo.id, title: todo.title, isCompleted: todo.isCompleted, limitTime: todo.limitTime)
+        }
+    }
+    
+    private func completeTodo(id: Int) {
+        let index = todos.firstIndex(where: { $0.id == id })
+        
+        if let index = index {
+            todos[index].isCompleted = true
+        }
+    }
+    
+    private func unCompleteTodo(id: Int) {
+        let index = todos.firstIndex(where: { $0.id == id })
+        
+        if let index = index {
+            todos[index].isCompleted = false
+        }
     }
 }
 

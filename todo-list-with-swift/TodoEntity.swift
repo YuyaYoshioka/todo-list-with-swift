@@ -18,6 +18,18 @@ struct TodoInputEntity {
     var limitTime: Date
 }
 
+struct TodoEditEntity {
+    var title: String
+    var isCompleted: Bool
+    var limitTime: Date
+}
+
+enum FilterTodoStatus {
+    case all
+    case completed
+    case notCompleted
+}
+
 let todosExample: [TodoEntity] = (1..<100).map { number in
     TodoEntity(id: number, title: "タイトル\(number)", isCompleted: number % 2 == 0, limitTime: Calendar.current.date(byAdding: .day, value: number, to: Date())!)
 }

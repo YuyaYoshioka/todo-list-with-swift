@@ -1,16 +1,17 @@
 //
-//  TodoInput.swift
+//  TodoEdit.swift
 //  todo-list-with-swift
 //
-//  Created by 吉岡雄也 on 2022/08/09.
+//  Created by 吉岡雄也 on 2022/08/13.
 //
 
 import SwiftUI
 
-struct TodoInput: View {
-    @State private var todoInput: TodoInputEntity = TodoInputEntity(title: "", limitTime: Date())
-    var addTodo: ((TodoInputEntity) -> Void)
-    var closeAddTodo: () -> Void
+struct TodoEdit: View {
+    var closeEditTodo: () -> Void
+    var updateTodo: (TodoEditEntity) -> Void
+    @State var todoEdit: TodoEditEntity
+
     
     var body: some View {
         NavigationView {
@@ -20,7 +21,7 @@ struct TodoInput: View {
                         .padding(.leading)
                     TextField(
                         "",
-                        text: $todoInput.title
+                        text: $todoEdit.title
                     )
                     .padding(4)
                     .overlay {
@@ -29,10 +30,13 @@ struct TodoInput: View {
                     }
                     .padding([.leading, .trailing])
                 }
+                Toggle(isOn: $todoEdit.isCompleted) {
+                    Text("完了")
+                }
+                .padding([.leading, .trailing])
                 DatePicker(
                     "期限",
-                    selection: $todoInput.limitTime,
-                    in: Date.now...,
+                    selection: $todoEdit.limitTime,
                     displayedComponents: [.date]
                 )
                 .environment(\.locale, Locale.init(identifier: "ja_JP"))
@@ -42,16 +46,16 @@ struct TodoInput: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        addTodo(todoInput)
-                        closeAddTodo()
+                        updateTodo(todoEdit)
+                        closeEditTodo()
                     }) {
-                        Text("追加")
+                        Text("更新")
                     }
-                    .disabled(isButtonDisabled(todo: todoInput))
+                    .disabled(isButtonDisabled(todo: todoEdit))
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
-                        closeAddTodo()
+                        closeEditTodo()
                     }) {
                         Text("キャンセル")
                     }
@@ -60,7 +64,7 @@ struct TodoInput: View {
         }
     }
     
-    private func isButtonDisabled(todo: TodoInputEntity) -> Bool {
+    private func isButtonDisabled(todo: TodoEditEntity) -> Bool {
         if todo.title.isEmpty {
             return true
         }
@@ -69,14 +73,14 @@ struct TodoInput: View {
     }
 }
 
-struct TodoInput_Previews: PreviewProvider {
+struct TodoEdit_Previews: PreviewProvider {
     static var previews: some View {
-        TodoInput(addTodo: {_ in addTodo(todo: todoInput)}, closeAddTodo: {})
+        TodoEdit(closeEditTodo: {}, updateTodo: {_ in updateTodo(todo: todo)}, todoEdit: todo)
     }
     
-    static func addTodo(todo: TodoInputEntity) -> Void {
+    private static func updateTodo(todo: TodoEditEntity) {
         print(todo)
     }
     
-    private static let todoInput = TodoInputEntity(title: "タイトル1", limitTime: Date())
+    private static let todo = TodoEditEntity(title: "タイトル", isCompleted: false, limitTime: Date())
 }

@@ -17,6 +17,7 @@
 		F668914A28A2843A0075E031 /* TodoLists.swift in Sources */ = {isa = PBXBuildFile; fileRef = F668914928A2843A0075E031 /* TodoLists.swift */; };
 		F668914C28A284530075E031 /* TodoEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F668914B28A284530075E031 /* TodoEntity.swift */; };
 		F668914E28A28FB80075E031 /* TodoInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = F668914D28A28FB80075E031 /* TodoInput.swift */; };
+		F6837FC228A7853A0091A767 /* TodoEdit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6837FC128A7853A0091A767 /* TodoEdit.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,6 +51,7 @@
 		F668914928A2843A0075E031 /* TodoLists.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoLists.swift; sourceTree = "<group>"; };
 		F668914B28A284530075E031 /* TodoEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoEntity.swift; sourceTree = "<group>"; };
 		F668914D28A28FB80075E031 /* TodoInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoInput.swift; sourceTree = "<group>"; };
+		F6837FC128A7853A0091A767 /* TodoEdit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoEdit.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +107,7 @@
 				F668912328A281680075E031 /* Assets.xcassets */,
 				F668912528A281680075E031 /* Preview Content */,
 				F668914928A2843A0075E031 /* TodoLists.swift */,
+				F6837FC128A7853A0091A767 /* TodoEdit.swift */,
 				F668914D28A28FB80075E031 /* TodoInput.swift */,
 				F668914B28A284530075E031 /* TodoEntity.swift */,
 			);
@@ -267,6 +270,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F668912228A2815F0075E031 /* ContentView.swift in Sources */,
+				F6837FC228A7853A0091A767 /* TodoEdit.swift in Sources */,
 				F668914E28A28FB80075E031 /* TodoInput.swift in Sources */,
 				F668914A28A2843A0075E031 /* TodoLists.swift in Sources */,
 				F668914C28A284530075E031 /* TodoEntity.swift in Sources */,
