@@ -14,54 +14,53 @@ struct TodoLists: View {
     @State var isAddMode = false
     @State var isEditMode = false
     @State var showsDeleteConfirmation = false
+    @State var showsBulkDeleteConfirmation = false
     @State var targetTodo: TodoEntity = TodoEntity(id: 0, title: "", isCompleted: false, limitTime: Date())
-    @Environment(\.editMode) private var editMode
+    @State var checkedTodoIDs = Set<Int>()
+    @State var editMode: EditMode = .inactive
     
     var body: some View {
         NavigationView {
-            List {
-                ForEach(filterTodo(todos: todos)) { todo in
-                    Text(todo.title)
-                        .swipeActions(edge: .trailing) {
-                            Button(role: .destructive) {
-                                targetTodo = todo
-                                showsDeleteConfirmation.toggle()
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
+            List(filterTodo(todos: todos), selection: $checkedTodoIDs) { todo in
+                Text(todo.title)
+                    .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) {
+                            targetTodo = todo
+                            showsDeleteConfirmation.toggle()
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                        Button(action:
+                                {
+                            targetTodo = todo
+                            isEditMode.toggle()
+                        }
+                        ){
+                            Label("Edit", systemImage: "pencil")
+                        }
+                        .tint(.blue)
+                    }
+                    .swipeActions(edge: .leading) {
+                        if todo.isCompleted {
                             Button(action:
                                     {
-                                targetTodo = todo
-                                isEditMode.toggle()
+                                unCompleteTodo(id: todo.id)
                             }
                             ){
-                                Label("Edit", systemImage: "pencil")
+                                Label("Edit", systemImage: "tray.full.fill")
                             }
-                            .tint(.blue)
-                        }
-                        .swipeActions(edge: .leading) {
-                            if todo.isCompleted {
-                                Button(action:
-                                        {
-                                    unCompleteTodo(id: todo.id)
-                                }
-                                ){
-                                    Label("Edit", systemImage: "tray.full.fill")
-                                }
-                                .tint(.green)
-                            } else {
-                                Button(action:
-                                        {
-                                    completeTodo(id: todo.id)
-                                }
-                                ){
-                                    Label("Edit", systemImage: "tray.fill")
-                                }
-                                .tint(.green)
+                            .tint(.green)
+                        } else {
+                            Button(action:
+                                    {
+                                completeTodo(id: todo.id)
                             }
+                            ){
+                                Label("Edit", systemImage: "tray.fill")
+                            }
+                            .tint(.green)
                         }
-                }
-                .onDelete(perform: {_ in })
+                    }
             }
             .navigationTitle("Todoリスト")
             .toolbar {
@@ -69,10 +68,20 @@ struct TodoLists: View {
                     EditButton()
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        isAddMode = true
-                    }) {
-                        Image(systemName: "plus.circle")
+                    if editMode.isEditing == false {
+                        Button(action: {
+                            isAddMode = true
+                        }) {
+                            Image(systemName: "plus.circle")
+                        }
+                    } else {
+                        Button(action: {
+                            showsBulkDeleteConfirmation.toggle()
+                        }) {
+                            Label("Delete", systemImage: "trash")
+                        }
+                        .tint(.red)
+                        .disabled(checkedTodoIDs.isEmpty)
                     }
                 }
                 ToolbarItemGroup(placement: .bottomBar) {
@@ -127,6 +136,17 @@ struct TodoLists: View {
                     Text("削除する")
                 }
             }
+           .alert("選択した\(checkedTodoIDs.count)件を本当に削除しますか？",
+                  isPresented: $showsBulkDeleteConfirmation) {
+               Button(role: .destructive, action: {
+                   bulkDeleteTodo()
+                   showsBulkDeleteConfirmation = false
+                   checkedTodoIDs = Set<Int>()
+               }) {
+                   Text("削除する")
+               }
+           }
+                  .environment(\.editMode, $editMode)
         }
     }
     
@@ -184,6 +204,12 @@ struct TodoLists: View {
         
         if let index = index {
             todos[index].isCompleted = false
+        }
+    }
+    
+    private func bulkDeleteTodo() {
+        checkedTodoIDs.forEach { id in
+            deleteTodo(todoID: id)
         }
     }
 }

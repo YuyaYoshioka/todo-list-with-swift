@@ -6,7 +6,7 @@
 //
 
 import Foundation
-struct TodoEntity: Identifiable {
+struct TodoEntity: Identifiable, Hashable {
     var id: Int
     var title: String
     var isCompleted: Bool
